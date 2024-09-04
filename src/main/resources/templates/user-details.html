@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Details</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container">
+    <h2>User Details</h2>
+    <div>
+        <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
+        <p><strong>Role:</strong> <span th:each="role : ${user.roles}" th:text="${role.name}"></span></p>
+    </div>
+    <div>
+        <a href="/users/all" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">View All Users</a>
+    </div>
+</div>
+</body>
+</html>
