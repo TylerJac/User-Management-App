@@ -14,6 +14,7 @@ import java.util.Set;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@Table(name = "app_user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

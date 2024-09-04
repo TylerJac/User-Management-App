@@ -1,5 +1,6 @@
 package org.uma.uma.service;
 
+import jakarta.annotation.PostConstruct;
 import org.uma.uma.entity.Role;
 import org.uma.uma.entity.User;
 import org.uma.uma.repository.RoleRepository;
@@ -12,7 +13,6 @@ import org.uma.uma.repository.UserRepository;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -27,12 +27,28 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public void saveUser(User user, String roleName) {
-        Role role = roleRepository.findByName(roleName)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid role"));
+
+    @PostConstruct
+    public void initRoles() {
+        Set<String> roleNames = new HashSet<>();
+        roleNames.add("ADMIN");
+        roleNames.add("STAFF");
+
+        for (String roleName : roleNames) {
+            if (roleRepository.findByName(roleName).isEmpty()) {
+                roleRepository.save(new Role(roleName));
+            }
+        }
+    }
+    public void saveUser(User user,  Set<Role> roles) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRoles(Set.of(role));
+        user.setRoles(roles);
         userRepository.save(user);
+    }
+
+    public User findByUsername(String username) {
+        return userRepository.findByUsername(username)
+               .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
     public List<User> getAllUsers() {
@@ -42,5 +58,6 @@ public class UserService {
     public Set<Role> getRoles() {
         return new HashSet<>(roleRepository.findAll());
     }
+
 }
 
