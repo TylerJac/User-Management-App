@@ -1,8 +1,6 @@
 package org.uma.uma.config;
 
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.uma.uma.service.UserDetailsServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,8 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;  // Injecting custom UserDetailsService for authentication logic
+    // Injecting custom UserDetailsService for authentication logic
 
     @Bean
     public PasswordEncoder passwordEncoder() {
