@@ -30,18 +30,18 @@ cd user-management-app
 ```
 
 ### 2. Setting up database
-Since it's an h2 database and it's stored in memory it shouldn't need any config but I haven't h2 before so just in case here's the sql for setting up the tables:
-CREATE TABLE users (
+- Since it's an h2 database and it's stored in memory it shouldn't need any config but I haven't h2 before so just in case here's the sql for setting up the tables:
+- CREATE TABLE users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     enabled BOOLEAN DEFAULT TRUE
 );
-CREATE TABLE roles (
+- CREATE TABLE roles (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL UNIQUE
 );
-CREATE TABLE user_roles (
+- CREATE TABLE user_roles (
     user_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
     PRIMARY KEY (user_id, role_id),
@@ -52,5 +52,5 @@ CREATE TABLE user_roles (
 
 ### 3. How to Run
 
-run this file: UserManagementAppApplication.java
-then head to: http://localhost:8080/login
+- run this file: UserManagementAppApplication.java
+- Then head to: http://localhost:8080/login
