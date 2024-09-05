@@ -30,9 +30,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/register", "/login", "/css/**", "/js/**").permitAll()
                         .requestMatchers("/users/all").hasRole("ADMIN")
+                        .requestMatchers("/users/details").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers("/users/").hasAnyRole("ADMIN", "USER")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login")
+                        .defaultSuccessUrl("/user/details", true)
                         .permitAll())
                 .logout(logout -> logout
                         .logoutSuccessUrl("/login?logout")

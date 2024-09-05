@@ -13,6 +13,7 @@ import org.uma.uma.repository.UserRepository;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -32,7 +33,7 @@ public class UserService {
     public void initRoles() {
         Set<String> roleNames = new HashSet<>();
         roleNames.add("ADMIN");
-        roleNames.add("STAFF");
+        roleNames.add("USER");
 
         for (String roleName : roleNames) {
             if (roleRepository.findByName(roleName).isEmpty()) {
@@ -57,6 +58,17 @@ public class UserService {
 
     public Set<Role> getRoles() {
         return new HashSet<>(roleRepository.findAll());
+    }
+
+    // Delete user by ID (for admin)
+    public void deleteUserById(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    // Fetch user by ID (for admin)
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
 }

@@ -8,10 +8,35 @@
 <body>
 <div class="container">
     <h2>User Details</h2>
+
+    <!-- Display user details -->
     <div>
         <p><strong>Username:</strong> <span th:text="${user.username}"></span></p>
         <p><strong>Role:</strong> <span th:each="role : ${user.roles}" th:text="${role.name}"></span></p>
     </div>
+
+    <!-- User update form -->
+    <h3>Update Your Details</h3>
+    <form th:action="@{/user/update}" th:object="${user}" method="post">
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" th:field="*{username}" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" th:field="*{password}" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+    <div class="text-right">
+        <form th:action="@{/logout}" method="post">
+            <button type="submit" class="btn btn-secondary">Logout</button>
+        </form>
+    </div>
+
+    <!-- Admin link to view all users -->
     <div>
         <a href="/users/all" th:if="${#authorization.expression('hasRole(''ADMIN'')')}">View All Users</a>
     </div>
