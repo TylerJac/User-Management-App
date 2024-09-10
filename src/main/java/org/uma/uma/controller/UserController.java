@@ -57,6 +57,7 @@ public class UserController {
 
     // Handle updating the logged-in user's details
     @PostMapping("/user/update")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public ResponseEntity<?> updateUserDetails( @RequestBody User user, Principal principal) {
 
         String username = principal.getName();  // Get the logged-in user's username
