@@ -1,6 +1,7 @@
 package org.uma.uma.service;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.security.access.annotation.Secured;
 import org.uma.uma.entity.Role;
 import org.uma.uma.entity.User;
 import org.uma.uma.repository.RoleRepository;
@@ -55,6 +56,7 @@ public class UserService {
     }
 
     // Fetches all users from the database
+    @Secured({"ADMIN"})  // Only admins can access this method
     public List<User> getAllUsers() {
         return userRepository.findAll();  // Return all users as a list
     }
