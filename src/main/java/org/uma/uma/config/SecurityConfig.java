@@ -30,8 +30,9 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for API security
                     .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/register", "/api/login").permitAll()// Permit registration and login endpoints
-                        .anyRequest().authenticated() // Secure other requests
+                        .requestMatchers("/api/register", "/api/login").permitAll()
+                            .requestMatchers("/api/users/all", "/api/users/delete/**").hasRole("ADMIN")  // Admin-only endpoints
+                            .anyRequest().authenticated() // Secure other requests
                 )
                 .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 

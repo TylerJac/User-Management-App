@@ -4,6 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -54,8 +56,6 @@ public class AuthController {
         Set<Role> roles = new HashSet<>();
         roles.add(role);
 
-        // Hash the password before saving the user
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // Save the user along with their roles
         userService.saveUser(user, roles);
@@ -67,9 +67,10 @@ public class AuthController {
         try {
 
             // Authenticate the user using the username and password
-            authenticationManager.authenticate(
+            Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword())
             );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             // Load user details from the database
             UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
 
@@ -78,6 +79,7 @@ public class AuthController {
 
             // Return the token in a structured JSON response
             return ResponseEntity.ok(Collections.singletonMap("token", token));
+
 
         } catch (Exception e) {
             // If authentication fails, return 401 Unauthorized

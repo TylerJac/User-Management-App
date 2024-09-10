@@ -2,6 +2,7 @@ package org.uma.uma.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.Set;
 
@@ -24,6 +25,7 @@ public class Role {
         this.name = name;
     }
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "roles")
+    @JsonIgnore
     private Set<User> users;
 
 }

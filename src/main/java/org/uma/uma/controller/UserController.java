@@ -2,6 +2,8 @@ package org.uma.uma.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.uma.uma.dto.UserDto;
+import org.uma.uma.entity.Role;
 import org.uma.uma.entity.User;
 import org.uma.uma.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequestMapping("/api")
 @RestController  // Marks this class as a Spring MVC controller
@@ -20,18 +23,36 @@ public class UserController {
     // View a list of all users (for admins)
     @GetMapping("/users/all")
     @PreAuthorize("hasRole('ADMIN')")  // Only admins can access this
-    public ResponseEntity<List<User>> viewAllUsers() {
+    public ResponseEntity<List<UserDto>> viewAllUsers() {
         List<User> users = userService.getAllUsers();  // Fetch all users
-        return ResponseEntity.ok(users);  // Return the list of users as JSON
+
+        // Convert each User entity into a UserDto
+        List<UserDto> userDtos = users.stream()
+                .map(user -> {
+                    UserDto dto = new UserDto();
+                    dto.setUsername(user.getUsername());
+                    dto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        // Return the list of UserDtos as JSON
+        return ResponseEntity.ok(userDtos);
     }
+
 
     // Display details of the logged-in user
     @GetMapping("/user/details")
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")  // Allow both USER and ADMIN to access
-    public ResponseEntity<User> showUserDetails(Principal principal) {
-        String username = principal.getName();  // Get the username of the currently logged-in user
-        User user = userService.findByUsername(username);  // Find the user by their username
-        return ResponseEntity.ok(user);  // Return the user details as JSON
+    public ResponseEntity<UserDto> showUserDetails(Principal principal) {
+        String username = principal.getName();  // Get the username of the logged-in user
+        User user = userService.findByUsername(username);  // Fetch the user from the database
+
+        // Convert the User entity to UserDto
+        UserDto userDto = new UserDto();
+        userDto.setUsername(user.getUsername());
+        userDto.setRoles(user.getRoles().stream().map(Role::getName).collect(Collectors.toSet()));
+        return ResponseEntity.ok(userDto);
     }
 
     // Handle updating the logged-in user's details
