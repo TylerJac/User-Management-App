@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -28,7 +29,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // Disable CSRF for API security
+                .requiresChannel(channel -> channel
+                        .anyRequest().requiresSecure()
+                )
+                // Enable CSRF protection
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                )
                     .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/register", "/api/login").permitAll()
                             .requestMatchers("/api/users/all", "/api/users/delete/**").hasRole("ADMIN")  // Admin-only endpoints
