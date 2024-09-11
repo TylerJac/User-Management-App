@@ -36,13 +36,13 @@ public class SecurityConfig {
                         .anyRequest().requiresSecure()
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
                 // Enable CSRF protection
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                        .ignoringRequestMatchers("/api/")
                 )
                     .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/register", "/api/login").permitAll()
+                        .requestMatchers("/api/register", "/api/login", "/").permitAll()
                             .requestMatchers("/api/users/all", "/api/users/delete/**").hasRole("ADMIN")  // Admin-only endpoints
                             .anyRequest().authenticated() // Secure other requests
                 )
@@ -69,8 +69,8 @@ public class SecurityConfig {
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(Arrays.asList("http://localhost:8080", "https://yourdomain.com"));  // Allow specific origins
-        corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization"));
+        corsConfiguration.setAllowedOrigins(Arrays.asList("https://localhost:8443", "https://yourdomain.com"));  // Allow specific origins
+        corsConfiguration.setAllowedHeaders(Arrays.asList("Origin", "Content-Type", "Accept", "Authorization", "X-XSRF-TOKEN"));
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowCredentials(true);  // Allow credentials (cookies, authorization headers)
 
