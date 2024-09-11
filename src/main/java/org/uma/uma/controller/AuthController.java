@@ -1,4 +1,6 @@
 package org.uma.uma.controller;
+import jakarta.validation.Valid;
+import org.owasp.encoder.Encode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -7,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.uma.uma.entity.Role;
 import org.uma.uma.entity.User;
@@ -43,7 +46,10 @@ public class AuthController {
     private RoleRepository roleRepository;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody User user,  @RequestParam String roleName) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody User user, BindingResult result, @RequestParam String roleName) {
+        if (result.hasErrors()) {
+            return ResponseEntity.badRequest().body(result.getAllErrors());
+        }
         // Find the role by roleName passed as a parameter
         Role role = roleRepository.findByName(roleName)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid role: " + roleName));
@@ -52,7 +58,7 @@ public class AuthController {
         Set<Role> roles = new HashSet<>();
         roles.add(role);
 
-
+        user.setUsername(Encode.forHtml(user.getUsername()));
         // Save the user along with their roles
         userService.saveUser(user, roles);
         return ResponseEntity.ok("User registered successfully");

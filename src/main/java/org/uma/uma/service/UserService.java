@@ -1,6 +1,8 @@
 package org.uma.uma.service;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.annotation.Secured;
 import org.uma.uma.entity.Role;
 import org.uma.uma.entity.User;
@@ -9,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.uma.uma.repository.UserRepository;
+import org.springframework.cache.annotation.CachePut;
 
 import java.util.HashSet;
 import java.util.List;
@@ -43,6 +46,7 @@ public class UserService {
     }
 
     // Saves the user with the assigned roles, and hashes the password before saving
+    @CachePut(value = "users", key = "#user.username")
     public void saveUser(User user, Set<Role> roles) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));  // Hash the password before saving
         user.setRoles(roles);  // Assign the provided roles to the user
@@ -50,12 +54,14 @@ public class UserService {
     }
 
     // Finds a user by username; throws IllegalArgumentException if the user is not found
+    @Cacheable(value = "users", key = "#username")
     public User findByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));  // If not found, throw an exception
     }
 
     // Fetches all users from the database
+    @Cacheable(value = "allUsers", unless = "#result.size() == 0")
     @Secured({"ADMIN"})  // Only admins can access this method
     public List<User> getAllUsers() {
         return userRepository.findAll();  // Return all users as a list
@@ -67,11 +73,14 @@ public class UserService {
     }
 
     // Deletes a user by their ID (for admin operations)
+    @CacheEvict(value = "users", key = "#id")
+    @Secured({"ADMIN"})
     public void deleteUserById(Long id) {
         userRepository.deleteById(id);  // Delete the user with the given ID from the database
     }
 
     // Fetches a user by their ID; throws IllegalArgumentException if the user is not found (for admin operations)
+    @Cacheable(value = "userById", key = "#id")
     public User getUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));  // If not found, throw an exception
